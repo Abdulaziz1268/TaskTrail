@@ -7,5 +7,5 @@ node_modules/
 .expo/
 dist/
 
-Journal
+.vscode
 
