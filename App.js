@@ -2,13 +2,12 @@ import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { View, Text, StyleSheet, Button } from "react-native"
 
-import "./App.js"
 
 const stack = createNativeStackNavigator()
 
 function Login({ navigation }) {
   return (
-    <View>
+    <View style={{ backgroundColor: "red" }}>
       <Text>Login Screen</Text>
       <Button title="home" onPress={() => navigation.navigate("tasks")} />
     </View>
@@ -16,7 +15,7 @@ function Login({ navigation }) {
 }
 function TaskListScreen() {
   return (
-    <View className="bg-red-600">
+    <View>
       <Text>Tasks list screen</Text>
     </View>
   )
