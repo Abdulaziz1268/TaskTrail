@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react"
 import {
   ActivityIndicator,
-  Button,
-  Keyboard,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
+  Keyboard,
+  Platform,
 } from "react-native"
 import api from "../Config/Api"
 import Toast from "react-native-toast-message"
@@ -25,13 +24,11 @@ import {
 
 const CELL_COUNT = 6
 
-const Verification = ({ navigation, route }) => {
-  // Get email from route params if coming back from registration
-  const initialEmail = route.params?.email || ""
-  const [email, setEmail] = useState(initialEmail)
+const Verification = ({ navigation }) => {
+  const [email, setEmail] = useState("")
   const [code, setCode] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [status, setStatus] = useState(initialEmail ? "sent" : "")
+  const [status, setStatus] = useState("")
   const [seconds, setSeconds] = useState(300)
   const [isActive, setIsActive] = useState(true)
   const [error, setError] = useState({
@@ -45,7 +42,6 @@ const Verification = ({ navigation, route }) => {
     setValue: setCode,
   })
 
-  // Timer for OTP resend
   useEffect(() => {
     let interval = null
 
@@ -61,7 +57,7 @@ const Verification = ({ navigation, route }) => {
     return () => clearInterval(interval)
   }, [isActive, seconds])
 
-  // Format time as MM:SS
+  // 🧮 Format MM:SS
   const formatTime = (secs) => {
     const minutes = Math.floor(secs / 60)
     const seconds = secs % 60
@@ -70,11 +66,8 @@ const Verification = ({ navigation, route }) => {
       .padStart(2, "0")}`
   }
 
-  // Auto-submit when code is complete
   useEffect(() => {
-    if (code.length === CELL_COUNT) {
-      handleCodeSubmit()
-    }
+    if (code.length === CELL_COUNT) handleCodeSubmit()
   }, [code])
 
   const handleEmailSubmit = async () => {
@@ -108,7 +101,7 @@ const Verification = ({ navigation, route }) => {
         })
       }
     } catch (error) {
-      console.log(error.response?.data.message || error.message)
+      console.log(error.message)
       setStatus("")
 
       // Handle validation errors
@@ -190,105 +183,107 @@ const Verification = ({ navigation, route }) => {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        {status !== "sent" ? (
-          <>
-            <Text style={styles.title}>Enter your Email</Text>
+    <View style={styles.container}>
+      {status !== "sent" ? (
+        <>
+          <Text style={styles.title}>Enter your Email</Text>
 
-            <TextInput
-              style={[styles.input, error.email && styles.inputError]}
-              inputMode="email"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={email}
-              placeholder="Email"
-              onChangeText={(value) => {
-                setEmail(value.toLowerCase())
-                setError((prevState) => ({ ...prevState, email: "" }))
-              }}
-              editable={!isSubmitting}
-            />
-            {error.email ? (
-              <Text style={styles.errorText}>{error.email}</Text>
-            ) : null}
+          <TextInput
+            style={[styles.input, error.email && styles.inputError]}
+            inputMode="email"
+            autoCapitalize="none"
+            value={email}
+            name="email"
+            placeholder="Email"
+            onChangeText={(value) => {
+              setEmail(value.toLowerCase())
+              setError((prevState) => ({ ...prevState, email: "" }))
+            }}
+          />
+          {error.email ? (
+            <Text style={styles.errorText}>{error.email}</Text>
+          ) : null}
 
-            <Button
-              title={isSubmitting ? "Sending..." : "Send Verification Code"}
-              onPress={handleEmailSubmit}
-              disabled={isSubmitting}
-            />
+          {/* Styled Button */}
+          <TouchableOpacity
+            style={[styles.button, isSubmitting && styles.buttonDisabled]}
+            onPress={handleEmailSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Send Verification Code</Text>
+            )}
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <Text style={styles.title}>Enter verification code</Text>
+          <Text style={styles.subtitle}>Sent to {email}</Text>
 
-            {isSubmitting && <ActivityIndicator style={styles.loader} />}
-          </>
-        ) : (
-          <>
-            <Text style={styles.title}>Enter verification code</Text>
-            <Text style={styles.subtitle}>Sent to {email}</Text>
+          <CodeField
+            ref={ref}
+            {...props}
+            value={code}
+            onChangeText={setCode}
+            cellCount={CELL_COUNT}
+            rootStyle={styles.codeFieldRoot}
+            keyboardType="number-pad"
+            textContentType="oneTimeCode"
+            editable={!isSubmitting}
+            renderCell={({ index, symbol, isFocused }) => (
+              <Text
+                key={index}
+                style={[
+                  styles.cell,
+                  isFocused && styles.focusCell,
+                  error.code && styles.cellError,
+                ]}
+                onLayout={getCellOnLayoutHandler(index)}
+              >
+                {symbol || (isFocused ? <Cursor /> : null)}
+              </Text>
+            )}
+          />
 
-            <CodeField
-              ref={ref}
-              {...props}
-              value={code}
-              onChangeText={setCode}
-              cellCount={CELL_COUNT}
-              rootStyle={styles.codeFieldRoot}
-              keyboardType="number-pad"
-              textContentType="oneTimeCode"
-              editable={!isSubmitting}
-              renderCell={({ index, symbol, isFocused }) => (
+          {error.code ? (
+            <Text style={styles.errorText}>{error.code}</Text>
+          ) : null}
+
+          <View style={styles.timerContainer}>
+            {isActive ? (
+              <Text style={styles.timerText}>
+                Resend code in {formatTime(seconds)}
+              </Text>
+            ) : (
+              <TouchableOpacity
+                onPress={handleResendCode}
+                disabled={isSubmitting}
+              >
                 <Text
-                  key={index}
                   style={[
-                    styles.cell,
-                    isFocused && styles.focusCell,
-                    error.code && styles.cellError,
+                    styles.resendText,
+                    isSubmitting && styles.resendDisabled,
                   ]}
-                  onLayout={getCellOnLayoutHandler(index)}
                 >
-                  {symbol || (isFocused ? <Cursor /> : null)}
+                  Resend verification code
                 </Text>
-              )}
-            />
+              </TouchableOpacity>
+            )}
+          </View>
 
-            {error.code ? (
-              <Text style={styles.errorText}>{error.code}</Text>
-            ) : null}
+          {isSubmitting && <ActivityIndicator style={styles.loader} />}
 
-            <View style={styles.timerContainer}>
-              {isActive ? (
-                <Text style={styles.timerText}>
-                  Resend code in {formatTime(seconds)}
-                </Text>
-              ) : (
-                <TouchableOpacity
-                  onPress={handleResendCode}
-                  disabled={isSubmitting}
-                >
-                  <Text
-                    style={[
-                      styles.resendText,
-                      isSubmitting && styles.resendDisabled,
-                    ]}
-                  >
-                    Resend verification code
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {isSubmitting && <ActivityIndicator style={styles.loader} />}
-
-            <TouchableOpacity
-              onPress={() => setStatus("")}
-              style={styles.changeEmailButton}
-            >
-              <Text style={styles.changeEmailText}>Change email address</Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
-    </TouchableWithoutFeedback>
+          <TouchableOpacity
+            onPress={() => setStatus("")}
+            style={styles.changeEmailButton}
+          >
+            <Text style={styles.changeEmailText}>Change email address</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    </View>
   )
 }
 
@@ -317,7 +312,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 15,
-    marginBottom: 10,
+    marginBottom: 15,
     borderRadius: 8,
     fontSize: 16,
   },
@@ -329,6 +324,24 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     alignSelf: "flex-start",
   },
+  // Button Styles
+  button: {
+    backgroundColor: "#007AFF",
+    borderRadius: 8,
+    padding: 16,
+    alignItems: "center",
+    width: "100%",
+    marginTop: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: "#84C1FF",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  // Code Field Styles
   codeFieldRoot: {
     marginTop: 20,
     marginBottom: 20,
