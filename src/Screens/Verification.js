@@ -108,7 +108,7 @@ const Verification = ({ navigation, route }) => {
         })
       }
     } catch (error) {
-      console.log(error.message)
+      console.log(error.response?.data.message || error.message)
       setStatus("")
 
       // Handle validation errors

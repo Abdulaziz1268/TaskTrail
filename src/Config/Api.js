@@ -1,7 +1,7 @@
 import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
-const baseURL = "http://192.168.31.162:2005"
+const baseURL = "http://192.168.80.222:2005"
 
 const api = axios.create({
   baseURL,
@@ -10,13 +10,13 @@ const api = axios.create({
 
 // Use this function for authenticated requests
 export const apiWithUserAuth = async () => {
-  const token = await AsyncStorage.getItem("userToken")
+  const token = await AsyncStorage.getItem("token")
   const instance = axios.create({
     baseURL,
     timeout: 10000,
     headers: {
-      // Authorization: token ? `Bearer ${token}` : "",
-      token,
+      Authorization: token ? `Bearer ${token}` : "",
+      // token,
     },
   })
   return instance

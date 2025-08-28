@@ -7,7 +7,7 @@ export default function App() {
   return (
     <GestureHandlerRootView>
       <AppRoutes />
-      <Toast />
+      <Toast position="bottom" />
     </GestureHandlerRootView>
   )
 }
