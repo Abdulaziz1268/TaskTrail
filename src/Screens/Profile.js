@@ -2,26 +2,10 @@ import { useEffect, useState } from "react"
 import { Platform, StatusBar, StyleSheet, Text, View } from "react-native"
 import { apiWithUserAuth } from "../Config/Api"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-// import OtpInputs from "react-native-otp-textinput"
-import {
-  CodeField,
-  Cursor,
-  useBlurOnFulfill,
-  useClearByFocusCell,
-} from "react-native-confirmation-code-field"
-
-const CELL_COUNT = 6
 
 const Profile = () => {
   const [data, setData] = useState({})
   const [usert, setUsert] = useState({})
-
-  const [value, setValue] = useState("")
-  const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT })
-  const [props, getCellOnLayoutHandler] = useClearByFocusCell({
-    value,
-    setValue,
-  })
 
   useEffect(() => {
     handleClick()
@@ -47,32 +31,9 @@ const Profile = () => {
   return (
     <View style={styles.container}>
       <Text>Profile</Text>
-      {/* <Text>{data.message}</Text>
+      <Text>{data.message}</Text>
       <Text>{data.user?.username}</Text>
-      <Text>{usert.username}</Text> */}
-      {/* <OtpInputs
-        handleChange={(code) => setOtp(code)}
-        numberOfInputs={6}
-        inputStyles={styles.otpInput}
-      /> */}
-      <CodeField
-        ref={ref}
-        {...props}
-        value={value}
-        onChangeText={setValue}
-        cellCount={CELL_COUNT}
-        rootStyle={styles.codeFieldRoot}
-        keyboardType="number-pad"
-        renderCell={({ index, symbol, isFocused }) => (
-          <Text
-            key={index}
-            style={[styles.cell, isFocused && styles.focusCell]}
-            onLayout={getCellOnLayoutHandler(index)}
-          >
-            {symbol || (isFocused ? <Cursor /> : null)}
-          </Text>
-        )}
-      />
+      <Text>{usert.username}</Text>
     </View>
   )
 }
