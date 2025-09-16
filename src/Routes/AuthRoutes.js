@@ -6,6 +6,8 @@ import Register from "../Screens/Register"
 import Verification from "../Screens/Verification"
 import Profile from "../Screens/Profile"
 import ForgotPassword from "../Screens/ForgotPassword"
+import Feed from "../Screens/Feed"
+import Post from "../Screens/Post"
 
 const AuthStack = createNativeStackNavigator()
 
@@ -18,6 +20,8 @@ export default function AuthRoutes() {
       }}
     >
       <AuthStack.Screen name="home" component={Home} />
+      <AuthStack.Screen name="post" component={Post} />
+      <AuthStack.Screen name="feed" component={Feed} />
       <AuthStack.Screen name="login" component={Login} />
       <AuthStack.Screen name="register" component={Register} />
       <AuthStack.Screen name="profile" component={Profile} />

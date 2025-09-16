@@ -104,6 +104,7 @@
 // })
 
 // export default Login
+
 import { useState } from "react"
 import {
   View,
@@ -150,7 +151,7 @@ const Login = ({ navigation }) => {
       })
 
       setTimeout(() => {
-        navigation.navigate("profile")
+        navigation.navigate("feed")
       }, 1500)
     } catch (error) {
       Toast.show({
