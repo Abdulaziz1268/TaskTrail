@@ -66,8 +66,7 @@ const Feed = ({ navigation }) => {
         )}
         style={styles.feedList}
         ItemSeparatorComponent={() => <View></View>}
-        // ListFooterComponentStyle={{ marginBottom: 50 }}
-        re
+        contentContainerStyle={{ marginBottom: 20 }}
       />
     </View>
   )

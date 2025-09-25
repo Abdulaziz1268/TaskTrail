@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   FlatList,
   StatusBar,
@@ -10,6 +10,8 @@ import {
 } from "react-native"
 import { Platform } from "react-native"
 import TaskCard from "../Components/TaskCard"
+import { apiWithUserAuth } from "../Config/Api"
+import Toast from "react-native-toast-message"
 
 const Tasks = () => {
   const [data, setData] = useState([])
@@ -43,6 +45,29 @@ const Tasks = () => {
   const deleteTask = (id) => {
     setTasks((prevTasks) => prevTasks.filter((item) => item.id !== id))
   }
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const api = await apiWithUserAuth()
+        const response = await api.get("/api/task/getTasks")
+        setTasks(response.data)
+        console.log(response)
+        Toast.show({
+          type: "success",
+          text1: "Tasks retrievedvvv successfully.",
+        })
+      } catch (error) {
+        console.log(error.response?.data.error || error.message)
+        Toast.show({
+          type: "error",
+          text1: error.response?.data.error || error.message,
+        })
+      }
+    }
+
+    fetchTasks()
+  }, [])
 
   return (
     <View style={styles.container}>
