@@ -1,18 +1,51 @@
-import { FontAwesome, FontAwesome6 } from "@expo/vector-icons"
-import { useState } from "react"
-import { Image, Pressable, TouchableOpacity } from "react-native"
-import { StyleSheet, View } from "react-native"
+import { FontAwesome } from "@expo/vector-icons"
+import { useEffect, useState } from "react"
+import { Dimensions, Image, Pressable, TouchableOpacity } from "react-native"
+import { StyleSheet, View, Text } from "react-native"
 
 import placeholder from "../../assets/placeholder.jpg"
 import imagePlaceholder from "../../assets/imagePlaceholder.png"
 import videoPlaceholder from "../../assets/videoPlaceholder.png"
-import { Text } from "react-native"
-import { Video } from "expo-av"
+import { baseURL } from "../Config/Api"
+import { useNavigation } from "@react-navigation/native"
+import { useVideoPlayer, VideoView } from "expo-video"
 
 const FeedCard = ({ feed, postLoading }) => {
   const [clicked, setClicked] = useState(false)
+  const [mediaHeight, setMediaHeight] = useState(0)
+  const [mediaWidth, setMediaWidth] = useState(0)
+
+  const navigation = useNavigation()
 
   const handleClick = () => setClicked((prev) => !prev)
+
+  const player = useVideoPlayer(`${baseURL}${feed.mediaUrl}`, (player) => {
+    player.loop = false
+    player.pause()
+  })
+
+  const screenWidth = Dimensions.get("window").width
+
+  useEffect(() => {
+    if (
+      !postLoading &&
+      feed.mediaUrl &&
+      feed.mediaUrl.match(/\.(jpeg|jpg|png|gif)$/i)
+    ) {
+      Image.getSize(
+        `${baseURL}${feed.mediaUrl}`,
+        (width, height) => {
+          const scaledHeight = (height / width) * screenWidth
+          setMediaHeight(scaledHeight)
+          setMediaWidth(screenWidth)
+        },
+        (error) => {
+          console.error("Failed to get image size:", error)
+          setMediaHeight(200) // fallback
+        }
+      )
+    }
+  }, [feed.mediaUrl, postLoading])
 
   return (
     <View style={styles.container}>
@@ -23,7 +56,7 @@ const FeedCard = ({ feed, postLoading }) => {
           source={
             postLoading || !feed.author.imageUrl
               ? placeholder
-              : { uri: `http://localhost:2005${feed.author.imageUrl}` }
+              : { uri: `${baseURL}${feed.author.imageUrl}` }
           }
         />
         <View style={styles.authorDetail}>
@@ -38,34 +71,45 @@ const FeedCard = ({ feed, postLoading }) => {
       </View>
       <Text style={styles.content}>{feed.content}</Text>
       {feed.mediaUrl && feed.mediaUrl.match(/\.(jpeg|jpg|png|gif)$/i) && (
-        <View style={styles.imageMediaContainer}>
+        <Pressable
+          style={[styles.imageMediaContainer, { height: mediaHeight }]}
+          onPress={() =>
+            navigation.navigate("imageViewer", { mediaUrl: feed.mediaUrl })
+          }
+        >
           <Image
-            style={styles.imageMedia}
-            resizeMode="contain"
+            style={[
+              styles.imageMedia,
+              { width: mediaWidth, height: mediaHeight },
+            ]}
+            resizeMode="cover"
             source={
               postLoading
                 ? imagePlaceholder
-                : { uri: `http://localhost:2005${feed.mediaUrl}` }
+                : { uri: `${baseURL}${feed.mediaUrl}` }
             }
           />
-        </View>
+        </Pressable>
       )}
       {feed.mediaUrl && feed.mediaUrl.match(/\.(mp4|webm|ogg)$/i) && (
-        <View style={styles.videoMediaContainer}>
+        <View
+          style={styles.videoMediaContainer}
+          // onPress={() =>
+          //   navigation.navigate("videoViewer", { mediaUrl: feed.mediaUrl })
+          // }
+        >
           {postLoading ? (
             <Image
               style={styles.videoPlaceholder}
-              resizeMode="contain"
+              resizeMode="cover"
               source={videoPlaceholder}
             />
           ) : (
-            <Video
+            <VideoView
               style={styles.videoMedia}
-              source={{ uri: `http://localhost:2005${feed.mediaUrl}` }}
-              controls
-              resizeMode="contain"
-              repeat={false}
-              paused
+              player={player}
+              allowsFullscreen
+              allowsPictureInPicture
             />
           )}
         </View>
@@ -139,7 +183,6 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     backgroundColor: "black",
-    maxHeight: 255,
     overflow: "hidden",
   },
   imageMedia: {
@@ -168,6 +211,8 @@ const styles = StyleSheet.create({
   },
   videoPlaceholder: {
     width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   videoMedia: {
     width: "100%",
