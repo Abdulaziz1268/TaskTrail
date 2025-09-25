@@ -9,10 +9,9 @@ import {
   View,
 } from "react-native"
 import placeholder from "../../assets/favicon.png"
-import { apiWithUserAuth } from "../Config/Api"
+import { apiWithUserAuth, baseURL } from "../Config/Api"
 import { UserContext } from "../Context/User"
 import { Platform } from "react-native"
-import { sampleData } from "../Components/feedData"
 import FeedCard from "../Components/FeedCard"
 
 const Feed = ({ navigation }) => {
@@ -49,7 +48,7 @@ const Feed = ({ navigation }) => {
           source={
             loading || !userData.imageUrl
               ? placeholder
-              : { uri: `http://localhost:2005${userData.imageUrl}` }
+              : { uri: `${baseURL}${userData.imageUrl}` }
           }
         />
         <TouchableOpacity
@@ -59,19 +58,17 @@ const Feed = ({ navigation }) => {
           <Text style={styles.postButtonText}>What's on your mind?</Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <FlatList
-          data={data}
-          keyExtractor={(item, index) =>
-            item._id.toString() || index.toString()
-          }
-          renderItem={({ item }) => (
-            <FeedCard feed={item} postLoading={postLoading} />
-          )}
-          style={styles.feedList}
-          ItemSeparatorComponent={() => <View></View>}
-        />
-      </View>
+      <FlatList
+        data={data}
+        keyExtractor={(item, index) => item._id.toString() || index.toString()}
+        renderItem={({ item }) => (
+          <FeedCard feed={item} postLoading={postLoading} />
+        )}
+        style={styles.feedList}
+        ItemSeparatorComponent={() => <View></View>}
+        // ListFooterComponentStyle={{ marginBottom: 50 }}
+        re
+      />
     </View>
   )
 }

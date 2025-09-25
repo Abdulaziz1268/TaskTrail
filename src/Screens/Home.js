@@ -239,140 +239,140 @@ const { width, height } = Dimensions.get("window")
 
 const Home = () => {
   const navigation = useNavigation()
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const scrollX = useRef(new Animated.Value(0)).current
-  const flatListRef = useRef(null)
-  const [showSignIn, setShowSignIn] = useState(false)
+  // const [currentIndex, setCurrentIndex] = useState(0)
+  // const scrollX = useRef(new Animated.Value(0)).current
+  // const flatListRef = useRef(null)
+  // const [showSignIn, setShowSignIn] = useState(true)
 
-  const features = [
-    {
-      id: "1",
-      title: "Secure",
-      description: "Your data is protected with industry-standard encryption",
-      icon: "shield-checkmark",
-      image:
-        "https://img.freepik.com/free-vector/secure-login-concept-illustration_114360-4582.jpg",
-    },
-    {
-      id: "2",
-      title: "Fast",
-      description: "Lightning-fast performance for seamless experience",
-      icon: "flash",
-      image:
-        "https://img.freepik.com/free-vector/speed-concept-illustration_114360-2928.jpg",
-    },
-    {
-      id: "3",
-      title: "Responsive",
-      description: "Works perfectly on all your devices",
-      icon: "phone-portrait",
-      image:
-        "https://img.freepik.com/free-vector/responsive-design-concept-illustration_114360-4770.jpg",
-    },
-  ]
+  // const features = [
+  //   {
+  //     id: "1",
+  //     title: "Secure",
+  //     description: "Your data is protected with industry-standard encryption",
+  //     icon: "shield-checkmark",
+  //     image:
+  //       "https://img.freepik.com/free-vector/secure-login-concept-illustration_114360-4582.jpg",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Fast",
+  //     description: "Lightning-fast performance for seamless experience",
+  //     icon: "flash",
+  //     image:
+  //       "https://img.freepik.com/free-vector/speed-concept-illustration_114360-2928.jpg",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Responsive",
+  //     description: "Works perfectly on all your devices",
+  //     icon: "phone-portrait",
+  //     image:
+  //       "https://img.freepik.com/free-vector/responsive-design-concept-illustration_114360-4770.jpg",
+  //   },
+  // ]
 
-  // Auto-scroll carousel
-  useEffect(() => {
-    let interval
+  // // Auto-scroll carousel
+  // useEffect(() => {
+  //   let interval
 
-    if (flatListRef.current && !showSignIn) {
-      interval = setInterval(() => {
-        if (flatListRef.current) {
-          const newIndex =
-            currentIndex < features.length - 1 ? currentIndex + 1 : 0
-          flatListRef.current.scrollToIndex({
-            index: newIndex,
-            animated: true,
-          })
-        }
-      }, 3000) // Change slide every 3 seconds
-    }
+  //   if (flatListRef.current && !showSignIn) {
+  //     interval = setInterval(() => {
+  //       if (flatListRef.current) {
+  //         const newIndex =
+  //           currentIndex < features.length - 1 ? currentIndex + 1 : 0
+  //         flatListRef.current.scrollToIndex({
+  //           index: newIndex,
+  //           animated: true,
+  //         })
+  //       }
+  //     }, 3000) // Change slide every 3 seconds
+  //   }
 
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [currentIndex, showSignIn])
+  //   return () => {
+  //     if (interval) clearInterval(interval)
+  //   }
+  // }, [currentIndex, showSignIn])
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    { useNativeDriver: false }
-  )
+  // const handleScroll = Animated.event(
+  //   [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+  //   { useNativeDriver: false }
+  // )
 
-  const handleViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index)
-    }
-  }).current
+  // const handleViewableItemsChanged = useRef(({ viewableItems }) => {
+  //   if (viewableItems.length > 0) {
+  //     setCurrentIndex(viewableItems[0].index)
+  //   }
+  // }).current
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  }).current
+  // const viewabilityConfig = useRef({
+  //   itemVisiblePercentThreshold: 50,
+  // }).current
 
-  const renderFeatureItem = ({ item }) => {
-    return (
-      <View style={styles.slide}>
-        <Image
-          source={{ uri: item.image }}
-          style={styles.featureImage}
-          resizeMode="contain"
-        />
-        <View style={styles.featureContent}>
-          <View style={styles.featureIconContainer}>
-            <Ionicons name={item.icon} size={32} color="#007AFF" />
-          </View>
-          <Text style={styles.featureTitle}>{item.title}</Text>
-          <Text style={styles.featureDescription}>{item.description}</Text>
-        </View>
-      </View>
-    )
-  }
+  // const renderFeatureItem = ({ item }) => {
+  //   return (
+  //     <View style={styles.slide}>
+  //       <Image
+  //         source={{ uri: item.image }}
+  //         style={styles.featureImage}
+  //         resizeMode="contain"
+  //       />
+  //       <View style={styles.featureContent}>
+  //         <View style={styles.featureIconContainer}>
+  //           <Ionicons name={item.icon} size={32} color="#007AFF" />
+  //         </View>
+  //         <Text style={styles.featureTitle}>{item.title}</Text>
+  //         <Text style={styles.featureDescription}>{item.description}</Text>
+  //       </View>
+  //     </View>
+  //   )
+  // }
 
-  const renderPagination = () => {
-    return (
-      <View style={styles.paginationContainer}>
-        {features.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.paginationDot,
-              index === currentIndex ? styles.paginationDotActive : null,
-            ]}
-          />
-        ))}
-      </View>
-    )
-  }
+  // const renderPagination = () => {
+  //   return (
+  //     <View style={styles.paginationContainer}>
+  //       {features.map((_, index) => (
+  //         <View
+  //           key={index}
+  //           style={[
+  //             styles.paginationDot,
+  //             index === currentIndex ? styles.paginationDotActive : null,
+  //           ]}
+  //         />
+  //       ))}
+  //     </View>
+  //   )
+  // }
 
-  if (!showSignIn) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.carouselContainer}>
-          <FlatList
-            ref={flatListRef}
-            data={features}
-            renderItem={renderFeatureItem}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={handleScroll}
-            onViewableItemsChanged={handleViewableItemsChanged}
-            viewabilityConfig={viewabilityConfig}
-            scrollEventThrottle={16}
-            onScrollToIndexFailed={() => {}} // Add empty fallback
-          />
-          {renderPagination()}
+  // if (!showSignIn) {
+  //   return (
+  //     <SafeAreaView style={styles.safeArea}>
+  //       <View style={styles.carouselContainer}>
+  //         <FlatList
+  //           ref={flatListRef}
+  //           data={features}
+  //           renderItem={renderFeatureItem}
+  //           keyExtractor={(item) => item.id}
+  //           horizontal
+  //           pagingEnabled
+  //           showsHorizontalScrollIndicator={false}
+  //           onScroll={handleScroll}
+  //           onViewableItemsChanged={handleViewableItemsChanged}
+  //           viewabilityConfig={viewabilityConfig}
+  //           scrollEventThrottle={16}
+  //           onScrollToIndexFailed={() => {}} // Add empty fallback
+  //         />
+  //         {renderPagination()}
 
-          <TouchableOpacity
-            style={styles.skipButton}
-            onPress={() => setShowSignIn(true)}
-          >
-            <Text style={styles.skipButtonText}>Skip</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    )
-  }
+  //         <TouchableOpacity
+  //           style={styles.skipButton}
+  //           onPress={() => setShowSignIn(true)}
+  //         >
+  //           <Text style={styles.skipButtonText}>Skip</Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //     </SafeAreaView>
+  //   )
+  // }
 
   return (
     <SafeAreaView style={styles.safeArea}>

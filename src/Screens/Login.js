@@ -151,7 +151,7 @@ const Login = ({ navigation }) => {
       })
 
       setTimeout(() => {
-        navigation.navigate("feed")
+        navigation.navigate("tasks")
       }, 1500)
     } catch (error) {
       Toast.show({
