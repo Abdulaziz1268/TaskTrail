@@ -13,90 +13,87 @@ import TaskCard from "../Components/TaskCard"
 import { apiWithUserAuth } from "../Config/Api"
 import Toast from "react-native-toast-message"
 
-const Tasks = () => {
-  const [data, setData] = useState([])
-
-  const [task, setTask] = useState("")
-  const [tasks, setTasks] = useState([
-    { id: "1695643200001", content: "Buy groceries" },
-    { id: "1695643201002", content: "Finish project report" },
-    { id: "1695643202003", content: "Call the dentist" },
-    { id: "1695643203004", content: "Book flight tickets" },
-    { id: "1695643204005", content: "Read a book" },
-    { id: "1695643205006", content: "Go for a run" },
-    { id: "1695643206007", content: "Schedule a meeting" },
-    { id: "1695643207008", content: "Respond to emails" },
-    { id: "1695643208009", content: "Organize workspace" },
-    { id: "1695643209010", content: "Prepare dinner" },
-    { id: "1695643210011", content: "Do laundry" },
-    { id: "1695643211012", content: "Practice guitar" },
-    { id: "1695643212013", content: "Plan the weekend" },
-    { id: "1695643213014", content: "Update resume" },
-    { id: "1695643214015", content: "Clean the kitchen" },
-  ])
-  const inputRef = useRef(null)
-
-  const addTask = () => {
-    setTasks([...tasks, { id: Date.now().toString(), content: task }])
-    setTask("")
-    inputRef.current?.blur()
-  }
-
-  const deleteTask = (id) => {
-    setTasks((prevTasks) => prevTasks.filter((item) => item.id !== id))
-  }
+const Tasks = ({ navigation }) => {
+  const [tasks, setTasks] = useState([])
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const api = await apiWithUserAuth()
-        const response = await api.get("/api/task/getTasks")
-        setTasks(response.data)
-        console.log(response)
-        Toast.show({
-          type: "success",
-          text1: "Tasks retrievedvvv successfully.",
-        })
-      } catch (error) {
-        console.log(error.response?.data.error || error.message)
-        Toast.show({
-          type: "error",
-          text1: error.response?.data.error || error.message,
-        })
-      }
-    }
-
     fetchTasks()
   }, [])
+
+  const deleteTask = async (id) => {
+    try {
+      const api = await apiWithUserAuth()
+      const response = await api.delete(`/api/task/deleteTask/${id}`)
+      Toast.show({
+        type: "success",
+        text1: response.data.message || "Deleted Successfully",
+      })
+      fetchTasks(true)
+    } catch (error) {
+      console.log(error.response?.data?.error || error.message)
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+      })
+    }
+  }
+
+  const fetchTasks = async (silent = false) => {
+    try {
+      const api = await apiWithUserAuth()
+      const response = await api.get("/api/task/getTasks")
+      setTasks(response.data)
+      console.log("@@@@")
+      console.log(response.data)
+      if (!silent) {
+        Toast.show({
+          type: "success",
+          text1: "Tasks fetched successfully.",
+        })
+      }
+    } catch (error) {
+      console.log(error.response?.data.error || error.message)
+      Toast.show({
+        type: "error",
+        text1: error.response?.data.error || error.message,
+      })
+    }
+  }
+
+  const onRefresh = async () => {
+    setRefreshing(true)
+    await fetchTasks(true)
+    setRefreshing(false)
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>TaskTrail</Text>
       <View style={styles.postContainer}>
-        <View style={styles.newTaskWrapper}>
-          <TextInput
-            placeholder="Add task"
-            onChangeText={setTask}
-            style={styles.newTaskInput}
-            ref={inputRef}
-            value={task}
-          />
-          {task.length > 0 && (
-            <TouchableOpacity style={styles.addBtn} onPress={addTask}>
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        <TouchableOpacity
+          style={styles.newTaskWrapper}
+          onPress={() => navigation.navigate("newTask")}
+        >
+          <Text style={styles.newTaskBtn}>What's on your mind?</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
         data={tasks}
-        keyExtractor={(item, index) => item.id.toString() || index.toString()}
+        keyExtractor={(item, index) => item._id || index.toString()}
         renderItem={({ item }) => (
           <TaskCard item={item} deleteTask={deleteTask} />
         )}
         style={styles.taskListWrapper}
         ItemSeparatorComponent={() => <View></View>}
         contentContainerStyle={{ paddingBottom: 15 }}
+        ListEmptyComponent={() => (
+          <View style={{ padding: 20, alignItems: "center" }}>
+            <Text style={{ fontSize: 16, color: "gray" }}>No tasks found.</Text>
+          </View>
+        )}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
       />
     </View>
   )
@@ -147,14 +144,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   newTaskWrapper: {
-    fontSize: 20,
     backgroundColor: "lightgray",
-    // paddingVertical: 5,
+    paddingVertical: 5,
     paddingLeft: 24,
     margin: 2,
-    borderRadius: 25,
+    borderRadius: 30,
     flex: 1,
+    height: 60,
     flexDirection: "row",
+    alignItems: "center",
+  },
+  newTaskBtn: {
+    fontSize: 18,
   },
   newTaskInput: {
     height: 50,
