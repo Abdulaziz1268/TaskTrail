@@ -14,6 +14,7 @@ import ImageViewer from "../Components/ImageViewer"
 import VideoViewer from "../Components/VideoViewer"
 import Tasks from "../Screens/Tasks"
 import NewTask from "../Screens/NewTask"
+import EditTask from "../Screens/EditTask"
 
 const AuthStack = createNativeStackNavigator()
 
@@ -32,6 +33,7 @@ export default function AuthRoutes() {
       <AuthStack.Screen name="feed" component={Feed} />
       <AuthStack.Screen name="tasks" component={Tasks} />
       <AuthStack.Screen name="newTask" component={NewTask} />
+      <AuthStack.Screen name="editTask" component={EditTask} />
       <AuthStack.Screen name="imageViewer" component={ImageViewer} />
       <AuthStack.Screen name="videoViewer" component={VideoViewer} />
       <AuthStack.Screen name="login" component={Login} />
