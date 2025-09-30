@@ -44,14 +44,12 @@ const Tasks = ({ navigation }) => {
       const api = await apiWithUserAuth()
       const response = await api.get("/api/task/getTasks")
       setTasks(response.data)
-      console.log("@@@@")
-      console.log(response.data)
-      if (!silent) {
-        Toast.show({
-          type: "success",
-          text1: "Tasks fetched successfully.",
-        })
-      }
+      // if (!silent) {
+      //   Toast.show({
+      //     type: "success",
+      //     text1: "Tasks fetched successfully.",
+      //   })
+      // }
     } catch (error) {
       console.log(error.response?.data.error || error.message)
       Toast.show({
@@ -82,7 +80,11 @@ const Tasks = ({ navigation }) => {
         data={tasks}
         keyExtractor={(item, index) => item._id || index.toString()}
         renderItem={({ item }) => (
-          <TaskCard item={item} deleteTask={deleteTask} />
+          <TaskCard
+            item={item}
+            deleteTask={deleteTask}
+            navigation={navigation}
+          />
         )}
         style={styles.taskListWrapper}
         ItemSeparatorComponent={() => <View></View>}
