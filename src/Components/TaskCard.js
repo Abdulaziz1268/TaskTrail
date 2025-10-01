@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { View } from "react-native"
-import { StyleSheet, Text, TouchableOpacity } from "react-native"
+import { Alert, View } from "react-native"
+import { StyleSheet, Text } from "react-native"
 
 const TaskCard = ({ item, deleteTask, navigation }) => {
   return (
@@ -14,7 +14,7 @@ const TaskCard = ({ item, deleteTask, navigation }) => {
       <View style={[styles.detailContainer]}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{item.title}</Text>
-          <TouchableOpacity
+          <View
             style={[
               styles.statusContainer,
               { backgroundColor: item.completed ? "#E8F5E8" : "#FFF3E0" },
@@ -28,7 +28,7 @@ const TaskCard = ({ item, deleteTask, navigation }) => {
             >
               {item.completed ? "Completed" : "Pending"}
             </Text>
-          </TouchableOpacity>
+          </View>
         </View>
         <Text style={styles.description}>{item.description}</Text>
       </View>
@@ -37,7 +37,20 @@ const TaskCard = ({ item, deleteTask, navigation }) => {
           name="delete"
           size={25}
           color="#F44336"
-          onPress={() => deleteTask(item._id)}
+          onPress={() =>
+            Alert.alert(
+              "Delete task",
+              "are you sure you want to delete this task?",
+              [
+                { text: "cancel", style: "cancel" },
+                {
+                  text: "Delete",
+                  style: "destructive",
+                  onPress: () => deleteTask(item._id),
+                },
+              ]
+            )
+          }
         />
         <MaterialCommunityIcons
           name="pencil"
