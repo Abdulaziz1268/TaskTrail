@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   FlatList,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native"
@@ -12,14 +11,22 @@ import { Platform } from "react-native"
 import TaskCard from "../Components/TaskCard"
 import { apiWithUserAuth } from "../Config/Api"
 import Toast from "react-native-toast-message"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 
 const Tasks = ({ navigation }) => {
   const [tasks, setTasks] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [showFilter, setShowFilter] = useState(false)
+  const [selectedFilter, setSelectedFilter] = useState("All")
+  const [filteredTasks, setFilteredTasks] = useState(tasks)
 
   useEffect(() => {
     fetchTasks()
   }, [])
+
+  useEffect(() => {
+    handleFilter()
+  }, [tasks, selectedFilter])
 
   const deleteTask = async (id) => {
     try {
@@ -29,7 +36,7 @@ const Tasks = ({ navigation }) => {
         type: "success",
         text1: response.data.message || "Deleted Successfully",
       })
-      fetchTasks(true)
+      fetchTasks()
     } catch (error) {
       console.log(error.response?.data?.error || error.message)
       Toast.show({
@@ -39,17 +46,11 @@ const Tasks = ({ navigation }) => {
     }
   }
 
-  const fetchTasks = async (silent = false) => {
+  const fetchTasks = async () => {
     try {
       const api = await apiWithUserAuth()
       const response = await api.get("/api/task/getTasks")
       setTasks(response.data)
-      // if (!silent) {
-      //   Toast.show({
-      //     type: "success",
-      //     text1: "Tasks fetched successfully.",
-      //   })
-      // }
     } catch (error) {
       console.log(error.response?.data.error || error.message)
       Toast.show({
@@ -61,8 +62,22 @@ const Tasks = ({ navigation }) => {
 
   const onRefresh = async () => {
     setRefreshing(true)
-    await fetchTasks(true)
+    await fetchTasks()
     setRefreshing(false)
+  }
+
+  const handleFilter = async () => {
+    try {
+      if (selectedFilter === "All") {
+        setFilteredTasks(tasks)
+      } else if (selectedFilter === "Pending") {
+        setFilteredTasks(() => tasks.filter((task) => task.completed !== true))
+      } else {
+        setFilteredTasks(() => tasks.filter((task) => task.completed === true))
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
   return (
@@ -75,9 +90,75 @@ const Tasks = ({ navigation }) => {
         >
           <Text style={styles.newTaskBtn}>What's on your mind?</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.filterBtnContainer}
+          onPress={() => setShowFilter((prev) => !prev)}
+        >
+          <MaterialCommunityIcons
+            name="filter-outline"
+            size={35}
+            color="#2196F3"
+          />
+        </TouchableOpacity>
       </View>
+      {showFilter && (
+        <View style={styles.filtersContainer}>
+          <TouchableOpacity
+            style={[
+              styles.filterItem,
+              {
+                backgroundColor:
+                  selectedFilter === "All" ? "#2196F3" : "lightgray",
+              },
+            ]}
+            onPress={() => setSelectedFilter("All")}
+          >
+            <Text
+              style={{ color: selectedFilter === "All" ? "white" : "black" }}
+            >
+              All
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterItem,
+              {
+                backgroundColor:
+                  selectedFilter === "Pending" ? "#2196F3" : "lightgray",
+              },
+            ]}
+            onPress={() => setSelectedFilter("Pending")}
+          >
+            <Text
+              style={{
+                color: selectedFilter === "Pending" ? "white" : "black",
+              }}
+            >
+              Pending
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterItem,
+              {
+                backgroundColor:
+                  selectedFilter === "Completed" ? "#2196F3" : "lightgray",
+              },
+            ]}
+            onPress={() => setSelectedFilter("Completed")}
+          >
+            <Text
+              style={{
+                color: selectedFilter === "Completed" ? "white" : "black",
+              }}
+            >
+              Completed
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item, index) => item._id || index.toString()}
         renderItem={({ item }) => (
           <TaskCard
@@ -128,6 +209,29 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 2,
+  },
+  filterBtnContainer: {
+    // backgroundColor: "green",
+    height: 60,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterItem: {
+    backgroundColor: "lightgray",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    // width: 100,
+    display: "flex",
+    alignItems: "center",
+    borderRadius: 20,
+  },
+  filtersContainer: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
+    paddingLeft: 20,
+    marginBottom: 15,
   },
   header: {
     fontSize: 25,
